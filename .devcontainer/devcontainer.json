@@ -1,0 +1,20 @@
+{
+  "name": "ROS 2 Jazzy Dev",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-iot.vscode-ros",
+        "ms-python.python",
+        "ms-vscode.cpptools",
+        "yzhang.markdown-all-in-one"
+      ]
+    }
+  },
+  "remoteUser": "root",
+  "postCreateCommand": "rosdep update"
+}
