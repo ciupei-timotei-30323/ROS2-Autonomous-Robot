@@ -52,14 +52,6 @@ def generate_launch_description():
             ]
         ),
 
-        # Rosbridge Server (WebSockets for Jetson & Face Pi)
-        Node(
-            package='rosbridge_server',
-            executable='rosbridge_websocket',
-            name='rosbridge_websocket',
-            output='screen',
-            parameters=[{'port': 9090}]
-        ),
 
         # TCP Bridge Node for minimalist custom protocol
         Node(
