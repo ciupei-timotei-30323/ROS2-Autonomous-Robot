@@ -15,8 +15,8 @@ setup(
     zip_safe=True,
     maintainer='root',
     maintainer_email='timoteiciupei@gmail.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='Core functionality for the Delivery Robot, including mission coordination and TCP bridge',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',
