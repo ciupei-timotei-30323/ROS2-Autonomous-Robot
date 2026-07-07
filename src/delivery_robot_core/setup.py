@@ -15,8 +15,8 @@ setup(
     zip_safe=True,
     maintainer='root',
     maintainer_email='timoteiciupei@gmail.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='Core functionality for the Delivery Robot, including mission coordination and TCP bridge',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',
@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'mission_coordinator = delivery_robot_core.mission_coordinator_node:main'
+            'mission_coordinator = delivery_robot_core.mission_coordinator_node:main',
+            'tcp_bridge_node = delivery_robot_core.tcp_bridge_node:main'
         ],
     },
 )

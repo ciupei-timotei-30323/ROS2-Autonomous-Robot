@@ -13,9 +13,9 @@
     <!-- Comment or Uncomment any of these to add them to the dev payload -->
     <!-- You can always link them elsewhere if you wish by editing accessories/<sensor>.urdf -->
     <xacro:property name="payload_z_offset" value="0.0513" />
-    <xacro:include filename="$(find roverrobotics_description)/urdf/accessories/rover_dev_payload.urdf" />
-    <!-- <xacro:include filename="$(find roverrobotics_description)/urdf/accessories/rplidar_s2.urdf" />
-    <xacro:include filename="$(find roverrobotics_description)/urdf/accessories/imu.urdf" /> -->
+    <xacro:include filename="$(find delivery_robot_bringup)/urdf/accessories/rover_dev_payload.urdf" />
+    <!-- <xacro:include filename="$(find delivery_robot_bringup)/urdf/accessories/rplidar_s2.urdf" />
+    <xacro:include filename="$(find delivery_robot_bringup)/urdf/accessories/imu.urdf" /> -->
 
     <!-- Robot Definition -->
     <link name="base_link" />
@@ -23,14 +23,14 @@
         <visual>
             <origin xyz="0 0 0" rpy="1.57 -0 1.57" />
             <geometry>
-                <mesh filename="file://$(find roverrobotics_description)/meshes/flipper_chassis.dae"/>
+                <mesh filename="file://$(find delivery_robot_bringup)/meshes/flipper_chassis.dae"/>
             </geometry>
         </visual>
 
         <collision>
             <origin xyz="0 0 0" rpy="1.57 -0 1.57" />
             <geometry>
-                <mesh filename="file://$(find roverrobotics_description)/meshes/flipper_chassis.dae"/>
+                <mesh filename="file://$(find delivery_robot_bringup)/meshes/flipper_chassis.dae"/>
             </geometry>
         </collision>
 
@@ -51,14 +51,14 @@
         <visual>
             <origin xyz="0 0 0" rpy="1.57 3.1415 0" />
             <geometry>
-                <mesh filename="file://$(find roverrobotics_description)/meshes/flipper_track.dae"/>
+                <mesh filename="file://$(find delivery_robot_bringup)/meshes/flipper_track.dae"/>
             </geometry>
         </visual>
 
         <collision>
             <origin xyz="0 0 0" rpy="1.57 3.1415 0" />
             <geometry>
-                <mesh filename="file://$(find roverrobotics_description)/meshes/flipper_track.dae"/>
+                <mesh filename="file://$(find delivery_robot_bringup)/meshes/flipper_track.dae"/>
             </geometry>
         </collision>
     </link>
@@ -72,14 +72,14 @@
         <visual>
             <origin xyz="0 0 0" rpy="1.57 3.1415 0" />
             <geometry>
-                <mesh filename="file://$(find roverrobotics_description)/meshes/flipper_track.dae"/>
+                <mesh filename="file://$(find delivery_robot_bringup)/meshes/flipper_track.dae"/>
             </geometry>
         </visual>
 
         <collision>
             <origin xyz="0 0 0" rpy="1.57 3.1415 0" />
             <geometry>
-                <mesh filename="file://$(find roverrobotics_description)/meshes/flipper_track.dae"/>
+                <mesh filename="file://$(find delivery_robot_bringup)/meshes/flipper_track.dae"/>
             </geometry>
         </collision>
     </link>
@@ -93,14 +93,14 @@
         <visual>
             <origin xyz="0 0 0" rpy="-1.57 0 1.57" />
             <geometry>
-                <mesh filename="file://$(find roverrobotics_description)/meshes/flipper.dae"/>
+                <mesh filename="file://$(find delivery_robot_bringup)/meshes/flipper.dae"/>
             </geometry>
         </visual>
 
         <collision>
             <origin xyz="0 0 0" rpy="-1.57 0 1.57" />
             <geometry>
-                <mesh filename="file://$(find roverrobotics_description)/meshes/flipper.dae"/>
+                <mesh filename="file://$(find delivery_robot_bringup)/meshes/flipper.dae"/>
             </geometry>
         </collision>
 
@@ -121,14 +121,14 @@
         <visual>
             <origin xyz="0 0 0" rpy="1.57 0 -1.57" />
             <geometry>
-                <mesh filename="file://$(find roverrobotics_description)/meshes/flipper.dae"/>
+                <mesh filename="file://$(find delivery_robot_bringup)/meshes/flipper.dae"/>
             </geometry>
         </visual>
 
         <collision>
             <origin xyz="0 0 0" rpy="1.57 0 -1.57" />
             <geometry>
-                <mesh filename="file://$(find roverrobotics_description)/meshes/flipper.dae"/>
+                <mesh filename="file://$(find delivery_robot_bringup)/meshes/flipper.dae"/>
             </geometry>
         </collision>
 
@@ -149,14 +149,14 @@
         <visual>
             <origin xyz="0 0 0" rpy="1.29 0 1.57" />
             <geometry>
-                <mesh filename="file://$(find roverrobotics_description)/meshes/flipper.dae"/>
+                <mesh filename="file://$(find delivery_robot_bringup)/meshes/flipper.dae"/>
             </geometry>
         </visual>
 
         <collision>
             <origin xyz="0 0 0" rpy="1.29 0 1.57" />
             <geometry>
-                <mesh filename="file://$(find roverrobotics_description)/meshes/flipper.dae"/>
+                <mesh filename="file://$(find delivery_robot_bringup)/meshes/flipper.dae"/>
             </geometry>
         </collision>
 
@@ -177,14 +177,14 @@
         <visual>
             <origin xyz="0 0 0" rpy="-1.29 0 -1.57" />
             <geometry>
-                <mesh filename="file://$(find roverrobotics_description)/meshes/flipper.dae"/>
+                <mesh filename="file://$(find delivery_robot_bringup)/meshes/flipper.dae"/>
             </geometry>
         </visual>
 
         <collision>
             <origin xyz="0 0 0" rpy="-1.29 0 -1.57" />
             <geometry>
-                <mesh filename="file://$(find roverrobotics_description)/meshes/flipper.dae"/>
+                <mesh filename="file://$(find delivery_robot_bringup)/meshes/flipper.dae"/>
             </geometry>
         </collision>
 

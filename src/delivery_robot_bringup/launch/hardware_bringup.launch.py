@@ -7,7 +7,7 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     
     # Dynamically find where the description package is installed
-    description_dir = get_package_share_directory('delivery_robot_description')
+    description_dir = get_package_share_directory('delivery_robot_bringup')
     
     # Combine the paths cleanly using os.path.join
     urdf_file = os.path.join(description_dir, 'urdf', 'delivery_robot.urdf')
@@ -59,5 +59,13 @@ def generate_launch_description():
             name='rosbridge_websocket',
             output='screen',
             parameters=[{'port': 9090}]
+        ),
+
+        # TCP Bridge Node for minimalist custom protocol
+        Node(
+            package='delivery_robot_core',
+            executable='tcp_bridge_node',
+            name='tcp_bridge_node',
+            output='screen'
         )
     ])
