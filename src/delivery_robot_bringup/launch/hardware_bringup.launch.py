@@ -25,17 +25,17 @@ def generate_launch_description():
             parameters=[{'robot_description': Command(['xacro ', urdf_file])}]
         ),
 
-        # Your Custom MCU Interface Node
-        Node(
-            package='delivery_robot_mcu',
-            executable='mcu_interface',
-            name='mcu_interface_node',
-            output='screen',
-            parameters=[
-                {'port': '/dev/ttyUSB0'},
-                {'baudrate': 115200}
-            ]
-        ),
+        # Your Custom MCU Interface Node (COMMENTED OUT since only LiDAR is connected)
+        # Node(
+        #     package='delivery_robot_mcu',
+        #     executable='mcu_interface',
+        #     name='mcu_interface_node',
+        #     output='screen',
+        #     parameters=[
+        #         {'port': '/dev/ttyUSB0'},
+        #         {'baudrate': 115200}
+        #     ]
+        # ),
 
         # RPLidar A1 Driver Node
         Node(
@@ -44,9 +44,9 @@ def generate_launch_description():
             name='rplidar_node',
             output='screen',
             parameters=[
-                {'serial_port': '/dev/ttyUSB1'}, 
+                {'serial_port': '/dev/ttyUSB0'}, # Changed to ttyUSB0 since it's the only device connected
                 {'serial_baudrate': 115200},
-                {'frame_id': 'laser_frame'},     
+                {'frame_id': 'lidar_link'},     
                 {'inverted': False},
                 {'angle_compensate': True}
             ]
