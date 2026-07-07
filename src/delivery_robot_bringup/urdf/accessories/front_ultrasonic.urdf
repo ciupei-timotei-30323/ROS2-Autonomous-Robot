@@ -1,0 +1,141 @@
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="front_ultrasonic">
+
+<!-- 1. Physical Link and Joint for ultrasonic_link -->
+    <link name="front_ultrasonic_link">
+    <visual>
+        <geometry><box size="0.02 0.05 0.03"/></geometry>
+        <material name="blue">
+            <color rgba="0 0 0.8 1"/>
+        </material>
+    </visual>
+    </link>
+
+    <joint name="front_ultrasonic_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="front_ultrasonic_link"/>
+    <origin xyz="0.2 0 0.1" rpy="0 0 0"/>
+    </joint>
+
+    <!-- 2. Gazebo Sim Sensor Definition -->
+    <gazebo reference="front_ultrasonic_link">
+    <!-- <sensor name="ultrasonic_sensor" type="ray"> -->
+    <sensor name='front_ultrasonic_sensor' type='gpu_lidar'>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <update_rate>10</update_rate>
+        <topic>front_ultrasonic_scan</topic> <!-- The internal Gazebo topic name -->
+        <ray>
+        <scan>
+            <horizontal>
+            <samples>5</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.15</min_angle> <!-- ~17 degree cone -->
+            <max_angle>0.15</max_angle>
+            </horizontal>
+            <vertical>
+            <samples>1</samples>
+            <resolution>1</resolution>
+            <min_angle>0.0</min_angle>
+            <max_angle>0.0</max_angle>
+            </vertical>
+        </scan>
+        <range>
+            <min>0.05</min>
+            <max>4.0</max>
+            <resolution>0.01</resolution>
+        </range>
+        </ray>
+    </sensor>
+    </gazebo>
+
+<!-- 1. Physical Link and Joint for ultrasonic_link -->
+   <link name="front_ultrasonic_link_left">
+    <visual>
+        <geometry><box size="0.02 0.05 0.03"/></geometry>
+    </visual>
+    </link>
+
+    <joint name="front_ultrasonic_joint_left" type="fixed">
+    <parent link="base_link"/>
+    <child link="front_ultrasonic_link_left"/>
+    <origin xyz="0.2 0.05 0.1" rpy="0 0 0"/>
+    </joint>
+
+    <!-- 2. Gazebo Sim Sensor Definition -->
+    <gazebo reference="front_ultrasonic_link_left">
+    <!-- <sensor name="ultrasonic_sensor" type="ray"> -->
+    <sensor name='front_ultrasonic_sensor_left' type='gpu_lidar'>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <update_rate>10</update_rate>
+        <topic>front_ultrasonic_scan_left</topic> <!-- The internal Gazebo topic name -->
+        <ray>
+        <scan>
+            <horizontal>
+            <samples>5</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.15</min_angle> <!-- ~17 degree cone -->
+            <max_angle>0.15</max_angle>
+            </horizontal>
+            <vertical>
+            <samples>1</samples>
+            <resolution>1</resolution>
+            <min_angle>0.0</min_angle>
+            <max_angle>0.0</max_angle>
+            </vertical>
+        </scan>
+        <range>
+            <min>0.05</min>
+            <max>4.0</max>
+            <resolution>0.01</resolution>
+        </range>
+        </ray>
+    </sensor>
+    </gazebo>
+
+<!-- 1. Physical Link and Joint for ultrasonic_link -->
+   <link name="front_ultrasonic_link_right">
+    <visual>
+        <geometry><box size="0.02 0.05 0.03"/></geometry>
+    </visual>
+    </link>
+
+    <joint name="front_ultrasonic_joint_right" type="fixed">
+    <parent link="base_link"/>
+    <child link="front_ultrasonic_link_right"/>
+    <origin xyz="0.2 -0.05 0.1" rpy="0 0 0"/>
+    </joint>
+
+    <!-- 2. Gazebo Sim Sensor Definition -->
+    <gazebo reference="front_ultrasonic_link_right">
+    <!-- <sensor name="ultrasonic_sensor" type="ray"> -->
+    <sensor name='front_ultrasonic_sensor_right' type='gpu_lidar'>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <update_rate>10</update_rate>
+        <topic>front_ultrasonic_scan_right</topic> <!-- The internal Gazebo topic name -->
+        <ray>
+        <scan>
+            <horizontal>
+            <samples>5</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.15</min_angle> <!-- ~17 degree cone -->
+            <max_angle>0.15</max_angle>
+            </horizontal>
+            <vertical>
+            <samples>1</samples>
+            <resolution>1</resolution>
+            <min_angle>0.0</min_angle>
+            <max_angle>0.0</max_angle>
+            </vertical>
+        </scan>
+        <range>
+            <min>0.05</min>
+            <max>4.0</max>
+            <resolution>0.01</resolution>
+        </range>
+        </ray>
+    </sensor>
+    </gazebo>    
+
+</robot>
