@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'mission_coordinator = delivery_robot_core.mission_coordinator_node:main'
+            'mission_coordinator = delivery_robot_core.mission_coordinator_node:main',
+            'tcp_bridge_node = delivery_robot_core.tcp_bridge_node:main'
         ],
     },
 )

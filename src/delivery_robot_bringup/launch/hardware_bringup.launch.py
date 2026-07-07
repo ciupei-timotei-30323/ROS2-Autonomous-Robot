@@ -59,5 +59,13 @@ def generate_launch_description():
             name='rosbridge_websocket',
             output='screen',
             parameters=[{'port': 9090}]
+        ),
+
+        # TCP Bridge Node for minimalist custom protocol
+        Node(
+            package='delivery_robot_core',
+            executable='tcp_bridge_node',
+            name='tcp_bridge_node',
+            output='screen'
         )
     ])
