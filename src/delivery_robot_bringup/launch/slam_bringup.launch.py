@@ -9,7 +9,7 @@ def generate_launch_description():
     bringup_dir = get_package_share_directory('delivery_robot_bringup')
     
     # Path to your YAML file
-    slam_config_file = os.path.join(bringup_dir, 'config', 'slam_params.yaml')
+    slam_config_file = os.path.join(bringup_dir, 'config', 'mapper_params_online_async.yaml')
 
     return LaunchDescription([
         Node(

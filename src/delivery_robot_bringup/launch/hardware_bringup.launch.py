@@ -1,28 +1,31 @@
 import os
 from launch import LaunchDescription
 from launch_ros.actions import Node
+# Import the package locator utility
+from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
     
-    # 1. Path to your URDF file
-    # Make sure you update 'delivery_robot_description' to your actual package path structure if different
-    urdf_file = '/root/delivery_robot_ws/src/delivery_robot_description/urdf/delivery_robot.urdf'
+    # Dynamically find where the description package is installed
+    description_dir = get_package_share_directory('delivery_robot_description')
     
-    with open(urdf_file, 'r') as infp:
-        robot_desc = infp.read()
+    # Combine the paths cleanly using os.path.join
+    urdf_file = os.path.join(description_dir, 'urdf', 'delivery_robot.urdf')
+    
+    from launch.substitutions import Command
 
     return LaunchDescription([
         
-        # 2. Robot State Publisher (Broadcasts the TF tree based on your URDF)
+        # Robot State Publisher (Broadcasts the TF tree based on your URDF)
         Node(
             package='robot_state_publisher',
             executable='robot_state_publisher',
             name='robot_state_publisher',
             output='screen',
-            parameters=[{'robot_description': robot_desc}]
+            parameters=[{'robot_description': Command(['xacro ', urdf_file])}]
         ),
 
-        # 3. Your Custom MCU Interface Node
+        # Your Custom MCU Interface Node
         Node(
             package='delivery_robot_mcu',
             executable='mcu_interface',
@@ -34,24 +37,22 @@ def generate_launch_description():
             ]
         ),
 
-        # 4. RPLidar A1 Driver Node
-        # Requires: sudo apt install ros-jazzy-rplidar-ros
+        # RPLidar A1 Driver Node
         Node(
             package='rplidar_ros',
             executable='rplidar_node',
             name='rplidar_node',
             output='screen',
             parameters=[
-                {'serial_port': '/dev/ttyUSB1'}, # Ensure this differs from your MCU port
+                {'serial_port': '/dev/ttyUSB1'}, 
                 {'serial_baudrate': 115200},
-                {'frame_id': 'laser_frame'},     # Must match the link name in the URDF
+                {'frame_id': 'laser_frame'},     
                 {'inverted': False},
                 {'angle_compensate': True}
             ]
         ),
 
-        # 5. Rosbridge Server (WebSockets for Jetson & Face Pi)
-        # Requires: sudo apt install ros-jazzy-rosbridge-server
+        # Rosbridge Server (WebSockets for Jetson & Face Pi)
         Node(
             package='rosbridge_server',
             executable='rosbridge_websocket',
