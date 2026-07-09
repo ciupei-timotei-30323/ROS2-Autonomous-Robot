@@ -28,7 +28,10 @@ source install/setup.bash
 Depending on what you want to accomplish, you will need to open multiple terminals (remembering to source the workspace in each one). 
 
 ### Step 3a: Bringup Hardware (Required)
-First, you must launch the hardware bringup to start the robot state publisher, LiDAR, and required communication bridge (TCP):
+First, you must launch the hardware bringup to start the robot state publisher, LiDAR, and required communication bridge (TCP), as well as the new DDSM115 motor controllers:
+
+> [!NOTE]
+> Ensure your DDSM115 RS485 adapter is connected and recognized as `/dev/ttyUSB1`, and your RPLidar is on `/dev/ttyUSB0`. If they are reversed, you will need to swap the port names in `hardware_bringup.launch.py`.
 
 ```bash
 ros2 launch delivery_robot_bringup hardware_bringup.launch.py
