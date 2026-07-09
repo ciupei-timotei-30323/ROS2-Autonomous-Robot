@@ -25,17 +25,24 @@ def generate_launch_description():
             parameters=[{'robot_description': Command(['xacro ', urdf_file])}]
         ),
 
-        # Your Custom MCU Interface Node (COMMENTED OUT since only LiDAR is connected)
-        # Node(
-        #     package='delivery_robot_mcu',
-        #     executable='mcu_interface',
-        #     name='mcu_interface_node',
-        #     output='screen',
-        #     parameters=[
-        #         {'port': '/dev/ttyUSB0'},
-        #         {'baudrate': 115200}
-        #     ]
-        # ),
+        # DDSM115 Motor Controller (RS485 Communication)
+        Node(
+            package='ddsm115_controller',
+            executable='velocity_control',
+            name='velocity_control_node',
+            output='screen',
+            parameters=[
+                {'usb_dev': '/dev/ttyUSB1'} # Change to match your RS485 adapter port
+            ]
+        ),
+
+        # DDSM115 Four Wheel Kinematics Node (cmd_vel -> rpm -> odom)
+        Node(
+            package='ddsm115_controller',
+            executable='four_wheels_robot',
+            name='four_wheels_robot_node',
+            output='screen'
+        ),
 
         # RPLidar A1 Driver Node
         Node(
