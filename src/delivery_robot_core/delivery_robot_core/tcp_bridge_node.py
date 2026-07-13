@@ -16,6 +16,10 @@ class TcpBridgeNode(Node):
 
         # Subscriber matching Mission Coordinator state
         self.state_sub = self.create_subscription(String, '/system/robot_state', self.state_callback, 10)
+        
+        # Subscriber for custom text alerts to send directly over TCP
+        self.alert_sub = self.create_subscription(String, '/system/tcp_alert', self.alert_callback, 10)
+        
         self.active_conn = None
 
         # Port for the TCP Server
@@ -41,6 +45,17 @@ class TcpBridgeNode(Node):
                 self.get_logger().info(f"Sent State over TCP: {msg.data}")
             except Exception as e:
                 self.get_logger().error(f"Failed to send state over TCP: {e}")
+
+    def alert_callback(self, msg):
+        """Forwards raw text alerts to the connected TCP client."""
+        if self.active_conn:
+            try:
+                # Add a newline so the receiver can easily parse the stream
+                payload = f"{msg.data}\n".encode('utf-8')
+                self.active_conn.sendall(payload)
+                self.get_logger().info(f"Sent Alert over TCP: {msg.data}")
+            except Exception as e:
+                self.get_logger().error(f"Failed to send alert over TCP: {e}")
 
     def run_tcp_server(self):
         """Runs a raw TCP server listening for incoming connections."""
@@ -78,10 +93,27 @@ class TcpBridgeNode(Node):
     def process_data(self, data):
         """
         Parses our custom minimalist protocol.
-        Format expected: "VOICE:Desk 1" or "FACE:True"
+        Format expected: "VOICE: command" or "FACE:True" or "GO Desk 1"
         """
+        if data.upper() == "STOP":
+            msg = String()
+            msg.data = "STOP"
+            self.voice_pub.publish(msg)
+            self.get_logger().info("Received STOP Command")
+            return
+
+        if data.upper().startswith("GO "):
+            destination = data[3:].strip()
+            msg = String()
+            msg.data = f"GO {destination}"
+            self.voice_pub.publish(msg)
+            self.get_logger().info(f"Received GO Command: {destination}")
+            return
+
         try:
             prefix, payload = data.split(':', 1)
+            prefix = prefix.strip().upper()
+            payload = payload.strip()
             
             if prefix == "VOICE":
                 msg = String()
