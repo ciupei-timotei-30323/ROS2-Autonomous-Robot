@@ -11,6 +11,7 @@ def generate_launch_description():
     
     # Combine the paths cleanly using os.path.join
     urdf_file = os.path.join(description_dir, 'urdf', 'delivery_robot.urdf')
+    ekf_config_file = os.path.join(description_dir, 'config', 'ekf.yaml')
     
     from launch.substitutions import Command
 
@@ -43,6 +44,24 @@ def generate_launch_description():
             name='four_wheels_robot_node',
             output='screen'
         ),
+
+        # EKF Node for fusing IMU and Wheel Odometry
+        Node(
+            package='robot_localization',
+            executable='ekf_node',
+            name='ekf_filter_node',
+            output='screen',
+            parameters=[ekf_config_file]
+        ),
+
+        # [TODO] Add your IMU driver node here once you acquire the hardware!
+        # Node(
+        #     package='<your_imu_package>',
+        #     executable='<your_imu_node>',
+        #     name='imu_node',
+        #     output='screen',
+        #     parameters=[{'port': '/dev/i2c-1'}] # example
+        # ),
 
         # RPLidar A1 Driver Node
         Node(
