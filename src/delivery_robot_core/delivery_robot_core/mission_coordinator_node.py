@@ -11,6 +11,7 @@ from geometry_msgs.msg import PoseStamped
 import math
 import json
 import os
+from ament_index_python.packages import get_package_share_directory
 
 class MissionCoordinatorNode(Node):
     def __init__(self):
@@ -22,9 +23,21 @@ class MissionCoordinatorNode(Node):
         # AUTONOMOUS_NAVIGATION, STUCK
 
         # --- Parameters ---
-        self.safety_distance = 0.2  # meters
-        self.linear_speed = 0.2     # m/s
-        self.angular_speed = 0.2    # rad/s
+        self.declare_parameter('safety_distance', 0.2)
+        self.declare_parameter('linear_speed', 0.2)
+        self.declare_parameter('angular_speed', 0.2)
+        
+        default_locations_file = os.path.join(
+            get_package_share_directory('delivery_robot_core'),
+            'config',
+            'Locations.json'
+        )
+        self.declare_parameter('locations_file_path', default_locations_file)
+
+        self.safety_distance = self.get_parameter('safety_distance').value
+        self.linear_speed = self.get_parameter('linear_speed').value
+        self.angular_speed = self.get_parameter('angular_speed').value
+        self.locations_file_path = self.get_parameter('locations_file_path').value
 
         self.target_destination_name = ""
         self.target_coords = None
@@ -79,7 +92,7 @@ class MissionCoordinatorNode(Node):
         self.get_logger().info(f"Published TCP Alert: {msg_str}")
 
     def load_locations(self):
-        filepath = "/home/ros2/works/robot_ws/ROS2-Autonomous-Robot/src/delivery_robot_core/config/Locations.json"
+        filepath = self.locations_file_path
         try:
             with open(filepath, 'r') as f:
                 return json.load(f)

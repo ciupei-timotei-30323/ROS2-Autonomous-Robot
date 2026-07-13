@@ -8,13 +8,22 @@ import json
 import math
 import sys
 import time
+import os
+from ament_index_python.packages import get_package_share_directory
 
 class WaypointLogger(Node):
     def __init__(self):
         super().__init__('waypoint_logger')
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
-        self.filepath = "/home/ros2/works/robot_ws/ROS2-Autonomous-Robot/src/delivery_robot_core/config/Locations.json"
+        
+        default_locations_file = os.path.join(
+            get_package_share_directory('delivery_robot_core'),
+            'config',
+            'Locations.json'
+        )
+        self.declare_parameter('locations_file_path', default_locations_file)
+        self.filepath = self.get_parameter('locations_file_path').value
 
     def get_robot_pose(self):
         try:
