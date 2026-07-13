@@ -31,7 +31,9 @@ Depending on what you want to accomplish, you will need to open multiple termina
 First, you must launch the hardware bringup to start the robot state publisher, LiDAR, and required communication bridge (TCP), as well as the new DDSM115 motor controllers:
 
 > [!NOTE]
-> Ensure your DDSM115 RS485 adapter is connected and recognized as `/dev/ttyUSB1`, and your RPLidar is on `/dev/ttyUSB0`. If they are reversed, you will need to swap the port names in `hardware_bringup.launch.py`.
+> Ensure your DDSM115 RS485 adapter is connected and recognized as `/dev/ttyUSB1`, and your RPLidar is on `/dev/ttyUSB0`. If they are reversed, you will need to swap the port names in `hardware_bringup.launch.py`. 
+> 
+> **Motor Initialization:** You do not need to manually initialize or configure the DDSM115 motors before starting the mapping or navigation modes. The `hardware_bringup` automatically detects the connected motors and places them into velocity control mode.
 
 ```bash
 ros2 launch delivery_robot_bringup hardware_bringup.launch.py
