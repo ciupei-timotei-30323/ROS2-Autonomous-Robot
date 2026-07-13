@@ -55,3 +55,13 @@ If you need to create a new map of the environment using the SLAM Toolbox:
 ```bash
 ros2 launch delivery_robot_bringup slam_bringup.launch.py
 ```
+
+## 4. Voice and TCP Commands
+
+The `mission_coordinator_node` and `tcp_bridge_node` now provide a robust interface for sending commands via a TCP socket.
+
+- **Manual Driving**: Send `Voice: forward`, `Voice: back`, `Voice: left`, or `Voice: right` to drive manually. The robot uses the LiDAR to detect obstacles and will automatically halt if anything is closer than **0.2m** in the direction of travel.
+- **Autonomous Navigation**: Send `GO [destination]` (e.g., `GO Desk 1`). Coordinates are loaded dynamically from `src/delivery_robot_core/config/Locations.json` (meaning you can update coordinates on the fly without rebooting the node). If the robot gets stuck while navigating, it will alert the TCP client and attempt to re-plan every 5 seconds.
+- **Emergency Stop**: Send `STOP` or `Voice: STOP` at any time to immediately interrupt any current navigation goals or manual movements and return the robot to an `IDLE` state. 
+
+*Note: As the robot transitions between states (IDLE, MOVING_FORWARD, AUTONOMOUS_NAVIGATION, STUCK, etc.) or experiences events, it broadcasts alerts directly over the TCP connection (e.g., "Robot is stuck", "Robot arrived at destination").*
