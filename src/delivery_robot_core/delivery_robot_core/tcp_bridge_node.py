@@ -74,14 +74,17 @@ class TcpBridgeNode(Node):
                 with conn:
                     try:
                         conn.sendall(b"Connection established to ROS2\n")
+                        buffer = ""
                         while True:
                             # Receive up to 1024 bytes and decode to string
-                            data = conn.recv(1024).decode('utf-8').strip()
-                            if not data:
+                            chunk = conn.recv(1024).decode('utf-8')
+                            if not chunk:
                                 break  # Client disconnected
                             
-                            # Handle potentially multiple messages split by newline
-                            for line in data.split('\n'):
+                            buffer += chunk
+                            # Process all complete lines in the buffer
+                            while '\n' in buffer:
+                                line, buffer = buffer.split('\n', 1)
                                 line = line.strip()
                                 if line:
                                     self.process_data(line)
