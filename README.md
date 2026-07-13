@@ -50,11 +50,26 @@ ros2 launch delivery_robot_bringup navigation_bringup.launch.py
 *Note: This will use the pre-generated map located in the `maps/` directory.*
 
 **Option B: Mapping (SLAM)**
-If you need to create a new map of the environment using the SLAM Toolbox:
+If you need to create a new map of the environment using the SLAM Toolbox, follow this multi-terminal workflow:
 
-```bash
-ros2 launch delivery_robot_bringup slam_bringup.launch.py
-```
+1. **Terminal 1 (Hardware)**: Launch the hardware bringup.
+   ```bash
+   ros2 launch delivery_robot_bringup hardware_bringup.launch.py
+   ```
+2. **Terminal 2 (SLAM)**: Launch the SLAM Toolbox to begin mapping.
+   ```bash
+   ros2 launch delivery_robot_bringup slam_bringup.launch.py
+   ```
+3. **Terminal 3 (Teleop)**: Open a new terminal, source the workspace, and run the teleop node to drive the robot around manually. Keep this terminal focused to use your keyboard.
+   ```bash
+   ros2 run teleop_twist_keyboard teleop_twist_keyboard
+   ```
+4. **Terminal 4 (Waypoint Logger)**: Open a fourth terminal, source the workspace, and run the waypoint logger to safely save your coordinates into `Locations.json`. Whenever you park the robot in a spot you want to remember, type its name here!
+   ```bash
+   ros2 run delivery_robot_core waypoint_logger
+   ```
+
+Once you are done mapping, use the SLAM toolbox map saver panel in RViz to save the map!
 
 ## 4. Voice and TCP Commands
 

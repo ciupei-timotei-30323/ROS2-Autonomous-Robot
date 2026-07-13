@@ -25,7 +25,8 @@ setup(
     entry_points={
         'console_scripts': [
             'mission_coordinator = delivery_robot_core.mission_coordinator_node:main',
-            'tcp_bridge_node = delivery_robot_core.tcp_bridge_node:main'
+            'tcp_bridge_node = delivery_robot_core.tcp_bridge_node:main',
+            'waypoint_logger = delivery_robot_core.waypoint_logger_node:main'
         ],
     },
 )
