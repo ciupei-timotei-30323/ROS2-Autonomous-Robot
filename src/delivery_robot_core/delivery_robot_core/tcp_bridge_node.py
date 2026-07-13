@@ -21,7 +21,13 @@ class TcpBridgeNode(Node):
         # Port for the TCP Server
         self.port = 5000 
         
-        # Start the TCP server in a daemon thread so it closes when the node dies
+        # Start the TCP server in a daemon thread, deferred to avoid rclpy logger race condition
+        self.server_thread = None
+        self.start_timer = self.create_timer(0.5, self.start_server_thread)
+
+    def start_server_thread(self):
+        if self.start_timer:
+            self.start_timer.cancel()
         self.server_thread = threading.Thread(target=self.run_tcp_server, daemon=True)
         self.server_thread.start()
 
@@ -52,6 +58,7 @@ class TcpBridgeNode(Node):
                 self.active_conn = conn
                 with conn:
                     try:
+                        conn.sendall(b"Connection established to ROS2\n")
                         while True:
                             # Receive up to 1024 bytes and decode to string
                             data = conn.recv(1024).decode('utf-8').strip()
