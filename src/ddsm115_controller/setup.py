@@ -24,8 +24,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'check_motor_id = ddsm115_controller.check_motor_id:main',
-            'set_motor_id = ddsm115_controller.set_motor_id:main',
+
             'velocity_control = ddsm115_controller.velocity_control:main',
             'four_wheels_robot = ddsm115_controller.four_wheels_robot:main',
         ],
