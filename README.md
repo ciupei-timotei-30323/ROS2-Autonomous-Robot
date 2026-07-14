@@ -17,7 +17,7 @@ The robot expects the following ID mapping:
 - **ID 4:** Rear Right
 
 **Configuration Steps:**
-1. Connect **only one motor** to the RS485 USB adapter. Supply power to it.
+1. Connect **only one motor** to your RS485 driver board. Supply power to it.
 2. Run the setup script:
    ```bash
    python3 src/ddsm115_controller/ddsm115_controller/set_motor_id.py
@@ -53,9 +53,9 @@ Depending on what you want to accomplish, you will need to open multiple termina
 First, you must launch the hardware bringup to start the robot state publisher, LiDAR, and required communication bridge (TCP), as well as the new DDSM115 motor controllers:
 
 > [!NOTE]
-> Ensure your DDSM115 RS485 adapter is connected and recognized as `/dev/ttyUSB1`, and your RPLidar is on `/dev/ttyUSB0`. If they are reversed, you will need to swap the port names in `hardware_bringup.launch.py`. 
+> Ensure your STM32 driver board is properly wired to the Raspberry Pi's SPI pins (CE0, SCLK, MISO, MOSI) with a common ground, and your RPLidar is connected to `/dev/ttyUSB0`.
 > 
-> **Motor Detection:** As long as your motors have been configured with unique IDs 1-4 (see Hardware Setup), you do not need to initialize them every time. The `hardware_bringup` automatically detects the connected motors and places them into velocity control mode.
+> **Motor Control:** As long as your motors have been configured with unique IDs 1-4, the `hardware_bringup` will automatically stream velocities to them via the STM32 over SPI.
 
 ```bash
 ros2 launch delivery_robot_bringup hardware_bringup.launch.py
