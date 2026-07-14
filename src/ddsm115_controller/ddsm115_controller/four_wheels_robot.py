@@ -16,6 +16,7 @@ class FourWheelsRobot(Node):
 		super().__init__("four_wheels_robot_node")
 		self.get_logger().info('Start four_wheels_robot_node')
 
+		## TODO : check if params are correct 
 		### ROS Parameters ###
 		self.declare_parameter("wheel_base", 0.255)
 		self.declare_parameter("R_wheel", 0.051)

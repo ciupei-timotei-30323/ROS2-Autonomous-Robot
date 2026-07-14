@@ -6,6 +6,28 @@ This repository contains the ROS 2 workspace for the Autonomous Delivery Robot. 
 
 Ensure you have ROS 2 installed and properly sourced on your machine (e.g., `source /opt/ros/humble/setup.bash`), along with all necessary dependencies such as `nav2` and `slam_toolbox`.
 
+## Hardware Setup (First Time Only)
+
+If you are setting up brand new DDSM115 motors out of the box, they all come with a default ID of `1`. You must configure them with unique IDs before plugging them all into the robot. **You only need to do this once.**
+
+The robot expects the following ID mapping:
+- **ID 1:** Front Left
+- **ID 2:** Front Right
+- **ID 3:** Rear Left
+- **ID 4:** Rear Right
+
+**Configuration Steps:**
+1. Connect **only one motor** to the RS485 USB adapter. Supply power to it.
+2. Run the setup script:
+   ```bash
+   python3 src/ddsm115_controller/ddsm115_controller/set_motor_id.py
+   ```
+3. Type the desired ID (e.g., `1` for Front Left) when prompted and press Enter.
+4. **Power cycle** the motor so the new ID takes effect.
+5. Repeat steps 1-4 for the remaining motors, assigning IDs 2, 3, and 4.
+
+Once all four motors have their unique IDs assigned, you can connect them all in parallel to the RS485 bus.
+
 ## 1. Build the Workspace
 
 Navigate to the root of the workspace and build the packages:
@@ -33,7 +55,7 @@ First, you must launch the hardware bringup to start the robot state publisher, 
 > [!NOTE]
 > Ensure your DDSM115 RS485 adapter is connected and recognized as `/dev/ttyUSB1`, and your RPLidar is on `/dev/ttyUSB0`. If they are reversed, you will need to swap the port names in `hardware_bringup.launch.py`. 
 > 
-> **Motor Initialization:** You do not need to manually initialize or configure the DDSM115 motors before starting the mapping or navigation modes. The `hardware_bringup` automatically detects the connected motors and places them into velocity control mode.
+> **Motor Detection:** As long as your motors have been configured with unique IDs 1-4 (see Hardware Setup), you do not need to initialize them every time. The `hardware_bringup` automatically detects the connected motors and places them into velocity control mode.
 
 ```bash
 ros2 launch delivery_robot_bringup hardware_bringup.launch.py

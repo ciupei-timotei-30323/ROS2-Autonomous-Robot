@@ -1,5 +1,0 @@
-How to use this to Map the OfficeOnce you have this set up, mapping the floor works like this:
-1.Build the workspace:Run colcon build --packages-select delivery_robot_bringup and source install/setup.bash.
-2.Start the Hardware:Run ros2 launch delivery_robot_bringup hardware_bringup.launch.py in terminal 1. This starts your MCU, LiDAR, and URDF TF tree.
-3.Start SLAM:Run ros2 launch delivery_robot_bringup slam_bringup.launch.py in terminal 2.
-4.Open RViz2:In a 3rd terminal, type rviz2. Add the "Map", "TF", and "LaserScan" displays. You should see the laser hitting the walls of the office.5.Drive the Robot:Use a teleop keyboard node (ros2 run teleop_twist_keyboard teleop_twist_keyboard) in a 4th terminal to manually drive the robot around. As you drive, SLAM Toolbox will build the map in RViz.
