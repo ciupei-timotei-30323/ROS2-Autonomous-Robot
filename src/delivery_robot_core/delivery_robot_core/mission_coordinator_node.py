@@ -43,6 +43,7 @@ class MissionCoordinatorNode(Node):
         self.target_coords = None
         self.stuck_timer = None
         self.goal_handle = None
+        self.stuck_retries = 0
 
         # --- Publishers & Subscribers ---
         # 1. Listen for voice/tcp destination commands
@@ -120,6 +121,7 @@ class MissionCoordinatorNode(Node):
             if self.stuck_timer:
                 self.stuck_timer.cancel()
                 self.stuck_timer = None
+            self.stuck_retries = 0
 
         if lower_command == "stop":
             self.get_logger().info("STOP command received. Halting robot.")
@@ -156,6 +158,7 @@ class MissionCoordinatorNode(Node):
         self.target_coords = locations[destination]
         self.target_destination_name = destination
         self.state = "AUTONOMOUS_NAVIGATION"
+        self.stuck_retries = 0
         self.publish_state()
         self.send_nav_goal(destination, self.target_coords)
 
@@ -214,6 +217,7 @@ class MissionCoordinatorNode(Node):
         if status == 4: # SUCCEEDED
             self.get_logger().info("Arrived at destination.")
             self.state = "IDLE"
+            self.stuck_retries = 0
             self.publish_state()
             self.publish_alert("Robot arrived at destination")
         else:
@@ -229,11 +233,22 @@ class MissionCoordinatorNode(Node):
 
     def stuck_recovery_callback(self):
         if self.state == "STUCK" and self.target_coords:
-            self.get_logger().info("Attempting stuck recovery...")
-            self.state = "AUTONOMOUS_NAVIGATION"
-            self.publish_state()
-            self.publish_alert("Navigation path established")
-            self.send_nav_goal(self.target_destination_name, self.target_coords)
+            if self.stuck_retries >= 4:
+                self.get_logger().info("Max stuck retries reached, switching to IDLE to conserve battery.")
+                self.state = "IDLE"
+                self.stuck_retries = 0
+                self.publish_state()
+                self.publish_alert("Robot entered IDLE to conserve battery")
+                if self.stuck_timer:
+                    self.stuck_timer.cancel()
+                    self.stuck_timer = None
+            else:
+                self.stuck_retries += 1
+                self.get_logger().info(f"Attempting stuck recovery... (Retry {self.stuck_retries}/4)")
+                self.state = "AUTONOMOUS_NAVIGATION"
+                self.publish_state()
+                self.publish_alert("Navigation path established")
+                self.send_nav_goal(self.target_destination_name, self.target_coords)
         else:
             # If state changed manually (e.g. automatic or forward sent), stop timer
             if self.stuck_timer:
