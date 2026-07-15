@@ -18,6 +18,8 @@ class VelocityControl(Node):
 		self.get_logger().info('Start velocity_control_node')
 
 		# ROS Parameters
+		# TODO: Verify if the STM32/DDSM115 encoder setup is exactly 4096 pulses per revolution. 
+		# If this is incorrect, all odometry distance calculations will be completely wrong.
 		self.declare_parameter('encoder_cpr', 4096.0) # Pulses per revolution, adjust if RPM is inaccurate
 		self.encoder_cpr = self.get_parameter('encoder_cpr').get_parameter_value().double_value
 

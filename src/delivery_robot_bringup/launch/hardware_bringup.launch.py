@@ -30,10 +30,7 @@ def generate_launch_description():
             package='ddsm115_controller',
             executable='velocity_control',
             name='velocity_control_node',
-            output='screen',
-            parameters=[
-                {'usb_dev': '/dev/ttyUSB1'} # Change to match your RS485 adapter port
-            ]
+            output='screen'
         ),
 
         # DDSM115 Four Wheel Kinematics Node (cmd_vel -> rpm -> odom)
