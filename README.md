@@ -73,7 +73,13 @@ If you need to create a new map of the environment using the SLAM Toolbox, follo
    ros2 run delivery_robot_core waypoint_logger
    ```
 
-Once you are done mapping, use the SLAM toolbox map saver panel in RViz to save the map!
+Once you are done mapping, you must save the map so Nav2 can use it! 
+Create a `maps` folder inside `src/delivery_robot_bringup/` and use the SLAM toolbox map saver panel in RViz (or the terminal) to save your map as `office_map`.
+
+After saving the map, rebuild the workspace so the map is copied over for Nav2 to use:
+```bash
+colcon build --symlink-install
+```
 
 ## 4. Voice and TCP Commands
 
