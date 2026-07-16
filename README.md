@@ -13,7 +13,7 @@ Ensure you have ROS 2 installed and properly sourced on your machine (e.g., `sou
 Navigate to the root of the workspace and build the packages:
 
 ```bash
-cd /home/ros2/works/robot_ws/ROS2-Autonomous-Robot
+cd ROS2-Autonomous-Robot
 colcon build --symlink-install
 ```
 

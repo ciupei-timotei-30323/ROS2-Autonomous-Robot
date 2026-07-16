@@ -11,6 +11,7 @@ from geometry_msgs.msg import PoseStamped
 import math
 import json
 import os
+import time
 from ament_index_python.packages import get_package_share_directory
 
 class MissionCoordinatorNode(Node):
@@ -44,6 +45,7 @@ class MissionCoordinatorNode(Node):
         self.stuck_timer = None
         self.goal_handle = None
         self.stuck_retries = 0
+        self.last_eta_publish_time = 0.0
 
         # --- Publishers & Subscribers ---
         # 1. Listen for voice/tcp destination commands
@@ -185,8 +187,22 @@ class MissionCoordinatorNode(Node):
 
         self.get_logger().info(f"Sending goal to Nav2: {location_name}")
         
-        self.send_goal_future = self.nav_client.send_goal_async(goal_msg)
+        self.send_goal_future = self.nav_client.send_goal_async(
+            goal_msg,
+            feedback_callback=self.nav_feedback_callback
+        )
         self.send_goal_future.add_done_callback(self.goal_response_callback)
+
+    def nav_feedback_callback(self, feedback_msg):
+        current_time = time.time()
+        if current_time - self.last_eta_publish_time >= 8.0:
+            eta_duration = feedback_msg.feedback.estimated_time_remaining
+            eta_seconds = eta_duration.sec + (eta_duration.nanosec * 1e-9)
+            
+            # Only report ETA if it's a positive value (Nav2 can sometimes briefly report 0 or negative during path recalculation)
+            if eta_seconds > 0:
+                self.publish_alert(f"ETA: {int(eta_seconds)} seconds")
+                self.last_eta_publish_time = current_time
 
     def goal_response_callback(self, future):
         goal_handle = future.result()
