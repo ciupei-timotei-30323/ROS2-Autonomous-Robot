@@ -4,7 +4,8 @@
   <name>delivery_robot_bringup</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="timoteiciupei@gmail.com">root</maintainer>
+  <author email="timoteiciupei@gmail.com">Timotei Ciupei</author>
+  <maintainer email="timoteiciupei@gmail.com">Timotei Ciupei</maintainer>
   <license>TODO: License declaration</license>
 
   <test_depend>ament_copyright</test_depend>
