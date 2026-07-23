@@ -38,7 +38,8 @@ def generate_launch_description():
             package='ddsm115_controller',
             executable='four_wheels_robot',
             name='four_wheels_robot_node',
-            output='screen'
+            output='screen',
+            parameters=[{'pub_tf': True}]
         ),
 
         # RPLidar A1 Driver Node
