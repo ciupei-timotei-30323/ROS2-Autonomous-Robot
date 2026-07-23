@@ -6,7 +6,7 @@
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Int16MultiArray, Bool
+from std_msgs.msg import Int16MultiArray, Bool, Int32
 import time
 import spidev
 import numpy as np
@@ -82,6 +82,13 @@ class VelocityControl(Node):
 		self.get_logger().info('Subscribe motors rpm cmd at         /ddsm115/rpm_cmd    [std_msgs/msg/Int16MultiArray]')
 		self.get_logger().info('Subscribe motors brake cmd at       /ddsm115/brake      [std_msgs/msg/Bool]')
 
+		self.pub_right_back_1 = self.create_publisher(Int32, "/sonar/right_back_1", qos_profile=qos)
+		self.pub_right_back_2 = self.create_publisher(Int32, "/sonar/right_back_2", qos_profile=qos)
+		self.pub_right_front = self.create_publisher(Int32, "/sonar/right_front", qos_profile=qos)
+		self.pub_left_front = self.create_publisher(Int32, "/sonar/left_front", qos_profile=qos)
+		self.pub_left_side = self.create_publisher(Int32, "/sonar/left_side", qos_profile=qos)
+		self.pub_right_side = self.create_publisher(Int32, "/sonar/right_side", qos_profile=qos)
+
 		self.timer =  self.create_timer(0.01, self.timer_callback)
 
 	def rpm_cmd_callback(self, msg):
@@ -118,7 +125,7 @@ class VelocityControl(Node):
 		target_fl = max(-127, min(127, int(target_fl)))
 		target_fr = max(-127, min(127, int(target_fr)))
 
-		# Construct the 11-byte array for the STM32
+		# Construct the 23-byte array for the STM32
 		payload = [
 			target_br & 0xFF,    # byte 0: Back Right
 			target_bl & 0xFF,    # byte 1: Back Left
@@ -131,7 +138,7 @@ class VelocityControl(Node):
 			8,                   # byte 8
 			9,                   # byte 9
 			10                   # byte 10
-		]
+		] + [0] * 12
 
 		try:
 			# Store a copy of the payload to log it correctly since xfer2 overwrites the list
@@ -146,7 +153,7 @@ class VelocityControl(Node):
 			if self.GPIO is not None:
 				self.GPIO.output(self.cs_pin, self.GPIO.HIGH)
 				
-			if len(response) == 11:
+			if len(response) == 23:
 				# Log the raw SPI response occasionally or always if debugging
 				self.get_logger().info(f"SPI Tx: {payload_tx} | Rx: {response}")
 				
@@ -188,6 +195,27 @@ class VelocityControl(Node):
 				rpm_msg = Int16MultiArray()
 				rpm_msg.data = [int(rpm_left), int(rpm_right), int(rpm_left), int(rpm_right)]
 				self.rpm_fb_pub.publish(rpm_msg)
+
+				# Parse and publish sonars
+				msg = Int32()
+				
+				msg.data = (response[11] << 8) | response[12]
+				self.pub_right_back_1.publish(msg)
+
+				msg.data = (response[13] << 8) | response[14]
+				self.pub_right_back_2.publish(msg)
+
+				msg.data = (response[15] << 8) | response[16]
+				self.pub_right_front.publish(msg)
+
+				msg.data = (response[17] << 8) | response[18]
+				self.pub_left_front.publish(msg)
+
+				msg.data = (response[19] << 8) | response[20]
+				self.pub_left_side.publish(msg)
+
+				msg.data = (response[21] << 8) | response[22]
+				self.pub_right_side.publish(msg)
 
 		except Exception as e:
 			self.get_logger().error(f"SPI Error: {e}")
