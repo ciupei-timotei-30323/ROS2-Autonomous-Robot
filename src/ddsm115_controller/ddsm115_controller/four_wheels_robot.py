@@ -95,7 +95,7 @@ class FourWheelsRobot(Node):
 			right_pct = 0
 
 		left_rpm = left_pct
-		right_rpm = right_pct
+		right_rpm = -right_pct
 
 		rpm_cmd_msg = Int16MultiArray()
 		# Format: [front_left, front_right, rear_left, rear_right]
