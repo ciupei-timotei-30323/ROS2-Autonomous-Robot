@@ -79,31 +79,23 @@ class FourWheelsRobot(Node):
 		vx = msg.linear.x
 		wz = msg.angular.z
 
-		if (vx != 0.0) and (wz == 0.0):
-			vl = vx
-			vr = vx
+		# Use the same simple kinematics as the colleagues' code
+		vl = vx - wz * self.wheel_base / 2.0
+		vr = vx + wz * self.wheel_base / 2.0
 
-		elif (vx == 0.0) and (wz != 0.0):
-
-			vl = -wz * self.wheel_base/2.0
-			vr = wz * self.wheel_base/2.0
-
-		elif (vx != 0.0) and (wz != 0.0):
-			R_icc = abs(vx)/abs(wz)
-			sign_vx = vx/abs(vx)
-			if wz > 0.0:
-				vl = (sign_vx)*(wz*(R_icc - self.wheel_base/2.0))
-				vr = (sign_vx)*(wz*(R_icc + self.wheel_base/2.0))
-			elif wz < 0.0:
-				vl = (sign_vx)*(abs(wz)*(R_icc + self.wheel_base/2.0))
-				vr = (sign_vx)*(abs(wz)*(R_icc - self.wheel_base/2.0))
+		# Convert to percentages based on max speed (e.g., 0.80 m/s)
+		max_wheel_speed = 0.80
+		
+		# Prevent divide by zero if max_wheel_speed is misconfigured
+		if max_wheel_speed > 0:
+			left_pct = int(max(-100, min(100, vl / max_wheel_speed * 100.0)))
+			right_pct = int(max(-100, min(100, vr / max_wheel_speed * 100.0)))
 		else:
-			vl = 0.0
-			vr = 0.0
+			left_pct = 0
+			right_pct = 0
 
-
-		left_rpm = int(self.linear_to_rpm(vl))
-		right_rpm = int(self.linear_to_rpm(vr)*(-1.0))
+		left_rpm = left_pct
+		right_rpm = right_pct
 
 		rpm_cmd_msg = Int16MultiArray()
 		# Format: [front_left, front_right, rear_left, rear_right]

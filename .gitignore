@@ -6,3 +6,14 @@ __pycache__/
 *.pyc
 script.py
 .venv/
+patch_robot.py
+test_wheels.py
+test_spi.py
+test_spi_auto_cs.py
+test_pin_claim.py
+test_miso_pull.py
+test_gpio.py
+test_4_wheels.py
+spi_diag.py
+spi_debug.py
+patch.py
