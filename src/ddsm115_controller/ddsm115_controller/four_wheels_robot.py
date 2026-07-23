@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Int16MultiArray, Int8MultiArray, Float32MultiArray, Bool
+from std_msgs.msg import Int16MultiArray, Int8MultiArray, Float32MultiArray, Bool, Float32
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Joy
@@ -17,18 +17,25 @@ class FourWheelsRobot(Node):
 		self.get_logger().info('Start four_wheels_robot_node')
 
 		### ROS Parameters ###
-		self.declare_parameter("wheel_base", 0.255) # TODO: measure it
+		self.declare_parameter("wheel_base", 0.225) # TODO: measure it
 		self.declare_parameter("R_wheel", 0.05035) 
 		self.declare_parameter("pub_tf", False)
+		self.declare_parameter("yaw_odom_scale", 1.0) # Scale factor for angular odometry to compensate for skid-steer slip
 		
 		self.wheel_base = self.get_parameter('wheel_base').get_parameter_value().double_value
 		self.R_wheel = self.get_parameter('R_wheel').get_parameter_value().double_value
 		self.pub_tf = self.get_parameter('pub_tf').get_parameter_value().bool_value
+		self.yaw_odom_scale = self.get_parameter('yaw_odom_scale').get_parameter_value().double_value
+
+		self.declare_parameter("yaw_mcu_scale", 1.0) # Set this to e.g. 0.1 or math.pi/180.0 if the MCU sends scaled degrees
+		self.yaw_mcu_scale = self.get_parameter('yaw_mcu_scale').get_parameter_value().double_value
 
 		self.get_logger().info("Using parameters as below")
 		self.get_logger().info("wheel_base: {}".format(self.wheel_base))
 		self.get_logger().info("R_wheel: {}".format(self.R_wheel))
 		self.get_logger().info("pub_tf: {}".format(self.pub_tf))
+		self.get_logger().info("yaw_odom_scale: {}".format(self.yaw_odom_scale))
+		self.get_logger().info("yaw_mcu_scale: {}".format(self.yaw_mcu_scale))
 
 		### Variables ###
 		self.rpm_fb_left = 0.0
@@ -36,6 +43,7 @@ class FourWheelsRobot(Node):
 		self.x = 0.0
 		self.y = 0.0
 		self.theta = 0.0
+		self.yaw_mcu = 0.0
 		self.period = 0.01
 		self.prev_y = 0.0
 
@@ -59,6 +67,7 @@ class FourWheelsRobot(Node):
 		self.rpm_fb_sub = self.create_subscription(Int16MultiArray, "/ddsm115/rpm_fb", self.rpm_fb_callback, qos_profile=qos)
 		self.cmd_vel_sub = self.create_subscription(Twist, "/cmd_vel", self.cmd_vel_callback, 10)
 		self.joy_sub = self.create_subscription(Joy, "/joy", self.joy_callback, 10)
+		self.yaw_sub = self.create_subscription(Float32, "/mcu/yaw", self.yaw_callback, qos_profile=qos)
 
 		self.timer = self.create_timer(self.period, self.timer_callback)
 
@@ -121,6 +130,9 @@ class FourWheelsRobot(Node):
 			self.prev_cart_mode = self.cart_mode
 			self.cart_mode = 1
 			self._print("cart mode is 1")
+
+	def yaw_callback(self, msg):
+		self.yaw_mcu = msg.data * self.yaw_mcu_scale
 
 	######################
 	### Math functions ###
@@ -220,52 +232,28 @@ class FourWheelsRobot(Node):
 		vl = round(self.rpm_to_linear(self.rpm_fb_left), 3)
 		vr = round(self.rpm_to_linear(self.rpm_fb_right), 3)
 
-		V = (vl + vr)/2.0
-
-		if (vl > 0.0) and (vr < 0.0) and (abs(V) < 0.1):
-			## rotatiing CW
+		# If wheels are moving very slowly or stopped, force V to 0
+		if abs(vl) < 0.01 and abs(vr) < 0.01:
 			V = 0.0
-			Wz = (vr - vl)/self.wheel_base
-			self.theta = self.theta + Wz*self.period
-
-			path = "skid_right"
-
-		elif (vr > 0.0) and (vl < 0.0) and (abs(V) < 0.1):
-			## rotatiing CCW
-			V = 0.0
-			Wz = (vr - vl)/self.wheel_base
-			self.theta = self.theta + Wz*self.period
-
-			path = "skid_left"
-
-		elif (abs(vl) > abs(vr)) or (abs(vl) < abs(vr)):
-			## curving CW
-			# V = (vl + vr)/2.0
-			Wz = (vr-vl)/self.wheel_base
-			# R_ICC = (self.L/2.0)*((vl+vr)/(vl-vr))
-			R_ICC = (self.wheel_base/2.0)*((vl+vr)/(vr-vl))
-
-			self.x = self.x - R_ICC*np.sin(self.theta) + R_ICC*np.sin(self.theta + Wz*self.period)
-			self.y = self.y + R_ICC*np.cos(self.theta) - R_ICC*np.cos(self.theta + Wz*self.period)
-			self.theta = self.theta + Wz*self.period
-
-			if abs(vl) > abs(vr):
-				path = "curve_right"
-			else:
-				path = "curve_left"
-
-		elif vl == vr:
-			V = (vl + vr)/2.0
-			Wz = 0.0
-			self.x = self.x + V*np.cos(self.theta)*self.period
-			self.y = self.y + V*np.sin(self.theta)*self.period
-			self.theta = self.theta
-			path = "straight"
-
 		else:
-			V = 0.0
-			Wz = 0.0
-			R_ICC = 0.0
+			V = (vl + vr)/2.0
+
+		# Read the new yaw from the MCU
+		new_theta = self.yaw_mcu
+		
+		# Calculate angular velocity (Wz) based on the change in MCU Yaw
+		diff = new_theta - self.theta
+		diff = math.atan2(math.sin(diff), math.cos(diff)) # normalize to -pi to pi
+		
+		Wz = diff / self.period
+		
+		# Position update (X, Y) using the new average heading
+		avg_theta = self.theta + diff / 2.0
+		self.x = self.x + V * np.cos(avg_theta) * self.period
+		self.y = self.y + V * np.sin(avg_theta) * self.period
+		
+		# Update orientation
+		self.theta = new_theta
 
 		q = self.euler_to_quaternion(0,0, self.theta)
 		odom_msg = Odometry()

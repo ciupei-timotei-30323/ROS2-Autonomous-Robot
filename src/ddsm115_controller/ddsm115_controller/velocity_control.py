@@ -6,7 +6,7 @@
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Int16MultiArray, Bool, Int32
+from std_msgs.msg import Int16MultiArray, Bool, Int32, Float32
 import time
 import spidev
 import numpy as np
@@ -88,6 +88,8 @@ class VelocityControl(Node):
 		self.pub_left_front = self.create_publisher(Int32, "/sonar/left_front", qos_profile=qos)
 		self.pub_left_side = self.create_publisher(Int32, "/sonar/left_side", qos_profile=qos)
 		self.pub_right_side = self.create_publisher(Int32, "/sonar/right_side", qos_profile=qos)
+
+		self.yaw_pub = self.create_publisher(Float32, "/mcu/yaw", qos_profile=qos)
 
 		self.timer =  self.create_timer(0.01, self.timer_callback)
 
@@ -216,6 +218,14 @@ class VelocityControl(Node):
 
 				msg.data = (response[21] << 8) | response[22]
 				self.pub_right_side.publish(msg)
+
+				# Parse and publish MCU Yaw
+				yaw_raw = (response[6] << 8) | response[7]
+				if yaw_raw > 32767:
+					yaw_raw -= 65536
+				yaw_msg = Float32()
+				yaw_msg.data = float(yaw_raw)
+				self.yaw_pub.publish(yaw_msg)
 
 		except Exception as e:
 			self.get_logger().error(f"SPI Error: {e}")

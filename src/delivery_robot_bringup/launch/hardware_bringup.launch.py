@@ -39,7 +39,10 @@ def generate_launch_description():
             executable='four_wheels_robot',
             name='four_wheels_robot_node',
             output='screen',
-            parameters=[{'pub_tf': True}]
+            parameters=[{
+                'pub_tf': True,
+                'yaw_odom_scale': 0.75  # Start with 0.75, adjust if it turns too much (<1.0) or too little (>1.0) in rviz
+            }]
         ),
 
         # RPLidar A1 Driver Node

@@ -18,3 +18,4 @@ spi_diag.py
 spi_debug.py
 patch.py
 ROS2-Autonomous-Robot.code-workspace
+src/delivery_robot_core/delivery_robot_core/odom_to_euler_node.py
