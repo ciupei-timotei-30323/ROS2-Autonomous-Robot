@@ -22,6 +22,15 @@ class WaypointLogger(Node):
             'config',
             'Locations.json'
         )
+        
+        # Point to the source directory so that locations persist across builds
+        src_locations_file = default_locations_file.replace(
+            'install/delivery_robot_core/share/delivery_robot_core', 
+            'src/delivery_robot_core'
+        )
+        if os.path.exists(src_locations_file):
+            default_locations_file = src_locations_file
+
         self.declare_parameter('locations_file_path', default_locations_file)
         self.filepath = self.get_parameter('locations_file_path').value
 
