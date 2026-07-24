@@ -28,6 +28,7 @@ setup(
             'mission_coordinator = delivery_robot_core.mission_coordinator_node:main',
             'tcp_bridge_node = delivery_robot_core.tcp_bridge_node:main',
             'waypoint_logger = delivery_robot_core.waypoint_logger_node:main',
+            'yaw_to_pose_node = delivery_robot_core.yaw_to_pose_node:main',
             # 'odom_to_euler = delivery_robot_core.odom_to_euler_node:main'
         ],
     },

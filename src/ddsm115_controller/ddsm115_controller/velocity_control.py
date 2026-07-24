@@ -7,9 +7,11 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Int16MultiArray, Bool, Int32, Float32
+from nav_msgs.msg import Odometry
 import time
 import spidev
 import numpy as np
+import math
 
 class VelocityControl(Node):
 
@@ -67,6 +69,14 @@ class VelocityControl(Node):
 		self.prev_enc2_total = 0
 		self.prev_time = time.time()
 
+		# Kinematics & Odometry
+		self.track_width = 0.29
+		self.wheel_radius = 0.05035
+		self.x = 0.0
+		self.y = 0.0
+		self.theta = 0.0
+		self.odom_prev_time = time.time()
+
 		### Pub/Sub ###
 		qos = rclpy.qos.QoSProfile(reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT, \
 											history=rclpy.qos.HistoryPolicy.KEEP_LAST, \
@@ -75,6 +85,7 @@ class VelocityControl(Node):
 		self.brake_cmd_sub = self.create_subscription(Bool, "/ddsm115/brake", self.brake_cmd_callback, qos_profile=qos)
 		
 		self.rpm_fb_pub = self.create_publisher(Int16MultiArray, "/ddsm115/rpm_fb", qos_profile=qos)
+		self.wheel_odom_pub = self.create_publisher(Odometry, "/wheel_odom", qos_profile=qos)
 
 		self.get_logger().info('----------------------------------- Publishers --------------------------------------')
 		self.get_logger().info('Publish motors rpm feedback to      /ddsm115/rpm_fb     [std_msgs/msg/Int16MultiArray]')
@@ -197,6 +208,58 @@ class VelocityControl(Node):
 				rpm_msg = Int16MultiArray()
 				rpm_msg.data = [int(rpm_left), int(rpm_right), int(rpm_left), int(rpm_right)]
 				self.rpm_fb_pub.publish(rpm_msg)
+
+				# 1. Convert RPM to linear velocity (m/s)
+				vl = rpm_left * (2.0 * math.pi / 60.0) * self.wheel_radius
+				vr = -rpm_right * (2.0 * math.pi / 60.0) * self.wheel_radius
+				
+				# 2. Calculate robot velocities
+				V = (vl + vr) / 2.0
+				Wz = (vr - vl) / self.track_width
+				
+				# 3. Update pose
+				dt = current_time - self.odom_prev_time
+				self.odom_prev_time = current_time
+				
+				if dt > 0:
+					avg_theta = self.theta + (Wz * dt) / 2.0
+					self.x += V * math.cos(avg_theta) * dt
+					self.y += V * math.sin(avg_theta) * dt
+					self.theta += Wz * dt
+				
+				# 4. Normalize theta between -pi and pi
+				self.theta = math.atan2(math.sin(self.theta), math.cos(self.theta))
+				
+				# 5. Publish nav_msgs/Odometry to /wheel_odom
+				odom_msg = Odometry()
+				odom_msg.header.stamp = self.get_clock().now().to_msg()
+				odom_msg.header.frame_id = "odom"
+				odom_msg.child_frame_id = "base_link"
+				
+				odom_msg.pose.pose.position.x = self.x
+				odom_msg.pose.pose.position.y = self.y
+				odom_msg.pose.pose.position.z = 0.0
+				
+				odom_msg.pose.pose.orientation.x = 0.0
+				odom_msg.pose.pose.orientation.y = 0.0
+				odom_msg.pose.pose.orientation.z = math.sin(self.theta / 2.0)
+				odom_msg.pose.pose.orientation.w = math.cos(self.theta / 2.0)
+				
+				odom_msg.pose.covariance[0] = 0.01  # x
+				odom_msg.pose.covariance[7] = 0.01  # y
+				odom_msg.pose.covariance[35] = 0.1  # yaw
+				
+				odom_msg.twist.twist.linear.x = V
+				odom_msg.twist.twist.linear.y = 0.0
+				odom_msg.twist.twist.angular.z = Wz
+
+				# Set twist covariance
+				odom_msg.twist.covariance[0] = 0.01   # vx
+				odom_msg.twist.covariance[7] = 0.0001 # vy
+				odom_msg.twist.covariance[35] = 0.01  # v_yaw
+				
+				self.wheel_odom_pub.publish(odom_msg)
+				# --------------------------------------------
 
 				# Parse and publish sonars
 				msg = Int32()
